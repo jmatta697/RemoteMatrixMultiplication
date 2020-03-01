@@ -16,6 +16,10 @@ type MatrixMultRPC struct {
 	client *rpc.Client
 }
 
+type Matrix struct {
+	matrixArray [][]int
+}
+
 func (t *MatrixMultRPC) MultiplyMatrix(matrix1, matrix2 [][]int) [][]int {
 	args := &shared.MatrixArgs{M1: matrix1, M2: matrix2}
 	var reply [][]int
@@ -56,7 +60,7 @@ func getMatrixSizeFromUser() (int64, error) {
 
 }
 
-func getIntegerFromUser() (int64, error)  {
+func getIntegerFromUser() (int64, error) {
 	reader := bufio.NewReader(os.Stdin)
 	var userInt string
 
@@ -79,10 +83,10 @@ func getIntegerFromUser() (int64, error)  {
 func buildMatrixFromUserInput(matricesSize int) [][]int {
 	var matrix [][]int
 
-	for i:=0; i<int(matricesSize); i++ {
+	for i := 0; i < int(matricesSize); i++ {
 		fmt.Printf("*** ROW %d ***\n", i+1)
 		var tempRow []int
-		for j:=0; j<int(matricesSize); j++{
+		for j := 0; j < int(matricesSize); j++ {
 			fmt.Print("Enter an integer: ")
 			inputInt, _ := getIntegerFromUser()
 			tempRow = append(tempRow, int(inputInt))
@@ -90,6 +94,28 @@ func buildMatrixFromUserInput(matricesSize int) [][]int {
 		matrix = append(matrix, tempRow)
 	}
 	return matrix
+}
+
+// https://rosettacode.org/wiki/Matrix_multiplication#Library_go.matrix
+func (m Matrix) toString() string {
+	rows := len(m.matrixArray)
+	cols := len(m.matrixArray[0])
+	out := "["
+	for r := 0; r < rows; r++ {
+		if r > 0 {
+			out += ",\n "
+		}
+		out += "[ "
+		for c := 0; c < cols; c++ {
+			if c > 0 {
+				out += ", "
+			}
+			out += fmt.Sprintf("%7d", m.matrixArray[r][c])
+		}
+		out += " ]"
+	}
+	out += "]"
+	return out
 }
 
 func main() {
@@ -104,8 +130,13 @@ func main() {
 	fmt.Println("----- MATRIX 2 -----")
 	secondMatrix := buildMatrixFromUserInput(int(matricesSize))
 
-	fmt.Println(firstMatrix)
-	fmt.Println(secondMatrix)
+	matrix1 := Matrix{matrixArray: firstMatrix}
+	matrix2 := Matrix{matrixArray: secondMatrix}
+
+	fmt.Println("\n----- MATRIX 1 -----")
+	fmt.Println(matrix1.toString())
+	fmt.Println("\n----- MATRIX 2 -----")
+	fmt.Println(matrix2.toString())
 
 	// Tries to connect to localhost:1234 (The port on which rpc server is listening)
 	conn, err := net.Dial("tcp", "localhost:1234")
@@ -116,5 +147,8 @@ func main() {
 	// It is not compulsory, we are doing it here, just to simulate a traditional method call.
 	matrixMultiply := &MatrixMultRPC{client: rpc.NewClient(conn)}
 
-	fmt.Println(matrixMultiply.MultiplyMatrix(firstMatrix, secondMatrix))
+	multiplicationResult := matrixMultiply.MultiplyMatrix(firstMatrix, secondMatrix)
+	resultMatrix := Matrix{matrixArray: multiplicationResult}
+	fmt.Println("\n----- RESULT MATRIX -----")
+	fmt.Println(resultMatrix.toString())
 }
