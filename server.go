@@ -14,6 +14,7 @@ func (t *MatrixMult) Multiply(args *shared.MatrixArgs, reply *[][]int) error {
 	return nil
 }
 
+// The matrix multiplication algorithm from:
 // https://rosettacode.org/wiki/Matrix_multiplication#Library_go.matrix
 func MultiplyMatrices(m1, m2 [][]int) (m3 [][]int, ok bool) {
 	rows, cols, extra := len(m1), len(m2[0]), len(m2)

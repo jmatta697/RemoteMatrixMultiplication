@@ -96,6 +96,7 @@ func buildMatrixFromUserInput(matricesSize int) [][]int {
 	return matrix
 }
 
+// This print algorithm is from:
 // https://rosettacode.org/wiki/Matrix_multiplication#Library_go.matrix
 func (m Matrix) toString() string {
 	rows := len(m.matrixArray)
